@@ -19,11 +19,16 @@ describe('triggers', () => {
           password: process.env.TEST_PASSWORD,
           url: process.env.TEST_URL
         },
+        inputData: {
+          entity_type: 'node',
+          bundle: 'program'
+        }
       };
 
       appTester(App.triggers.entity.operation.perform, bundle)
         .then(results => {
-          console.log(results[0]);
+        //  console.log(results);
+       //   console.log(results[0]);
           results.length.should.above(0);
 
           const firstentity = results[0];

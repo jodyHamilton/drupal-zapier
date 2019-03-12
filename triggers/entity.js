@@ -1,22 +1,36 @@
 const listentities = (z, bundle) => {
   // `z.console.log()` is similar to `console.log()`.
-  z.console.log('console says hello world!');
 
   const params = {};
-  if (bundle.inputData.status) {
-    params.status = bundle.inputData.status;
-  }
 
   // You can build requests and our client will helpfully inject all the variables
   // you need to complete. You can also register middleware to control this.
   const requestOptions = {
-    url: '{{bundle.authData.url}}/node/program',
+    url: '{{bundle.authData.url}}/{{bundle.inputData.entity_type}}/{{bundle.inputData.bundle}}',
     params: params
-  };
+  };  
 
   // You may return a promise or a normal data structure from any perform method.
   return z.request(requestOptions)
     .then(response => z.JSON.parse(response.content).data);
+};
+
+const dynamicFields = (z, bundle) => {
+  const response = z.request({url: '{{bundle.authData.url}}'});
+  return response.then(function(response) { 
+    const content = z.JSON.parse(response.content);
+    const links = content.links;
+    var raw = Object.keys(links);
+    var split = [];
+    var choices = {};
+
+    for (let key of raw) {
+      split = key.split('--');
+      choices[split[0]] = split[0];
+    }
+
+    return [{key: 'entity_types', choices: choices, helpText: 'Which Drupal entity type should we watch', required: true}];
+  });
 };
 
 // We recommend writing your triggers separate like this and rolling them
@@ -35,10 +49,10 @@ module.exports = {
   // `operation` is where the business logic goes.
   operation: {
 
-    // `inputFields` can define the fields a user could provide,
-    // we'll pass them in as `bundle.inputData` later.
     inputFields: [
-      {key: 'status', type: 'string',  helpText: 'Which status change should this occur on.'}
+    //  {key: 'entity_type', choices: entityTypes,  helpText: 'Which entity type should we import.', required: true},
+      {key: 'bundle', type: 'string',  helpText: 'Which bundle should we import.', required: true},
+      dynamicFields
     ],
 
     perform: listentities,
