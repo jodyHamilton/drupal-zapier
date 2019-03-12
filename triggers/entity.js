@@ -22,14 +22,26 @@ const dynamicFields = (z, bundle) => {
     const links = content.links;
     var raw = Object.keys(links);
     var split = [];
-    var choices = {};
+    var entities = {};
+    var bundles = {};
 
     for (let key of raw) {
       split = key.split('--');
-      choices[split[0]] = split[0];
+      entities[split[0]] = split[0];
+      if (bundle.inputData.entity_type) {
+        if (bundle.inputData.entity_type == split[0]) {
+          bundles[split[1]] = split[1];
+        }
+      }
+      else {
+        bundles[split[1]] = split[1];
+      }
     }
 
-    return [{key: 'entity_types', choices: choices, helpText: 'Which Drupal entity type should we watch', required: true}];
+    return [
+      {key: 'entity_type', choices: entities, helpText: 'Which Drupal entity type should we watch.', required: true, altersDynamicFields: true},
+      {key: 'bundle', choices: bundles,  helpText: 'Which bundle should we watch.', required: true}
+    ];
   });
 };
 
@@ -38,20 +50,15 @@ const dynamicFields = (z, bundle) => {
 module.exports = {
   key: 'entity',
 
-  // You'll want to provide some helpful display labels and descriptions
-  // for users. Zapier will put them into the UX.
   noun: 'entity',
   display: {
     label: 'New Entity',
     description: 'Trigger when a new entity is added.'
   },
 
-  // `operation` is where the business logic goes.
   operation: {
 
     inputFields: [
-    //  {key: 'entity_type', choices: entityTypes,  helpText: 'Which entity type should we import.', required: true},
-      {key: 'bundle', type: 'string',  helpText: 'Which bundle should we import.', required: true},
       dynamicFields
     ],
 
