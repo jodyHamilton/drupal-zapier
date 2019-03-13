@@ -2,19 +2,26 @@
 
 
 const dynamicFields = (z, bundle) => {
-  const getFields = (og_key, value) => {
+  const getFields = (parent_key, value) => {
     var raw = Object.keys(value);
     var new_fields = [];
     for (let key of raw) {
+      var combo_key = key;
+      if (parent_key !== '') {
+        combo_key = parent_key + '.' + key;
+      }
       if (typeof value[key] === 'object' && value[key] !== null) {
-        var fields = getFields(og_key + '.' + key, value[key]);
+        var fields = getFields(combo_key, value[key]);
         var fields_array = Object.keys(fields);
         for (let new_key of fields_array) {
           new_fields.push(fields[new_key]);
         }
       }
       else {
-        new_fields.push({key: og_key + '.' + key, type: 'text'});
+        // We don't need the top-level 'type' field.
+        if (combo_key !== 'type') {
+          new_fields.push({key: combo_key, type: 'text'});
+        }
       }
     }
     return new_fields;
@@ -22,24 +29,11 @@ const dynamicFields = (z, bundle) => {
 
   if (bundle.inputData.entity_type && bundle.inputData.bundle) {
     return z.request({url: '{{bundle.authData.url}}/{{bundle.inputData.entity_type}}/{{bundle.inputData.bundle}}'}).then(function(response) { 
-      var new_fields = [];
       var content = z.JSON.parse(response.content);
       var data = content.data;
       var sample = data[0];
-      var raw = Object.keys(sample);
-      for (let key of raw) {
-        if (typeof sample[key] === 'object' && sample[key] !== null) {
-          var fields = getFields(key, sample[key]);
-          var fields_array = Object.keys(fields);
-          for (let new_key of fields_array) {
-            new_fields.push(fields[new_key]);
-          }
-        }
-        else {
-          new_fields.push({key: key, type: 'text'});
-        }
-      }
-      return new_fields;
+      // Recursively make fields out of multidimensional data.
+      return getFields('', sample);
     });
   }
   return [];
@@ -89,17 +83,38 @@ module.exports = {
       dynamicFields
     ],
     perform: (z, bundle) => {
+      var data = {};
+      data['type'] = bundle.inputData.entity_type + '--' + bundle.inputData.bundle;
+      // Turn inputData into a multidimensional object.
+      var inputData = bundle.inputData;
+      var inputArray = Object.keys(inputData);
+      for (let key of inputArray) {
+        if (key !== 'entity_type' && key !== 'bundle') {
+          var keyArray = key.split('.');
+          keyArray.reverse();
+          var innerData = {};
+          var depthKeys = Object.keys(keyArray);
+          for (let depth of depthKeys) {
+            if (depth == 0) {
+              innerData[keyArray[depth]] = inputData[key];
+            }
+            else if (depth == (keyArray.length - 1)) {
+              data[keyArray[depth]] = innerData;
+            }
+            else {
+              var newObj = {};
+              newObj[keyArray[depth]] = innerData;
+              innerData = newObj;
+            }  
+          }
+        }
+      }
       const promise = z.request({
         url: bundle.authData.url + '/' + bundle.inputData.entity_type + '/' + bundle.inputData.bundle,
         method: 'POST',
         headers: {'Content-type': 'application/vnd.api+json'},
         body: JSON.stringify({
-          data: {
-            type: bundle.inputData.entity_type + '--' + bundle.inputData.bundle,
-            attributes: {
-              title: bundle.inputData.title
-            }
-          }
+          data: data
         })
       });
 

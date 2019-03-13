@@ -18,7 +18,7 @@ describe('creates', () => {
         inputData: {
           entity_type: process.env.TEST_ENTITY,
           bundle: process.env.TEST_BUNDLE,
-          title: 'test'
+          'attributes.title': 'test'
         }
       };
 
