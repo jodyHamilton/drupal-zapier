@@ -1,10 +1,8 @@
-const entity = require('./triggers/entity');
+const entity_trigger = require('./triggers/entity');
+const entity_create = require('./creates/entity');
 const authentication = require('./authentication');
 
-// Now we can roll up all our behaviors in an App.
 const App = {
-  // This is just shorthand to reference the installed dependencies you have. Zapier will
-  // need to know these before we can upload
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
@@ -17,13 +15,14 @@ const App = {
   resources: {},
 
   triggers: {
-    [entity.key]: entity
+    [entity_trigger.key]: entity_trigger
   },
 
   searches: {},
 
-  creates: {}
+  creates: {
+    [entity_create.key]: entity_create
+  }
 };
 
-// Finally, export the app.
 module.exports = App;

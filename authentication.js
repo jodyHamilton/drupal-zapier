@@ -1,10 +1,18 @@
 'use strict';
+const test = (z , bundle) => {
+  return z.request({
+      url: bundle.authData.url,
+    }).then((response) => {
+      if (response.status !== 200) {
+        throw new Error('We did not get JSON from the URL you configured. Check that you have JSON:API enabled.');
+      }
+      return response;
+    });
+};
 
 const authentication = {
   type: 'basic',
-  test: {
-    url: '{{bundle.authData.url}}'
-  },
+  test: test,
   connectionLabel: '{{bundle.authData.url}}',
   fields: [
     {
