@@ -1,18 +1,60 @@
 
+
+
 const dynamicFields = (z, bundle) => {
-  const response = z.request({url: '{{bundle.authData.url}}'});
-  return response.then(function(response) { 
+  const getFields = (og_key, value) => {
+    var raw = Object.keys(value);
+    var new_fields = [];
+    for (let key of raw) {
+      if (typeof value[key] === 'object' && value[key] !== null) {
+        var fields = getFields(og_key + '.' + key, value[key]);
+        var fields_array = Object.keys(fields);
+        for (let new_key of fields_array) {
+          new_fields.push(fields[new_key]);
+        }
+      }
+      else {
+        new_fields.push({key: og_key + '.' + key, type: 'text'});
+      }
+    }
+    return new_fields;
+  }
+
+  if (bundle.inputData.entity_type && bundle.inputData.bundle) {
+    return z.request({url: '{{bundle.authData.url}}/{{bundle.inputData.entity_type}}/{{bundle.inputData.bundle}}'}).then(function(response) { 
+      var new_fields = [];
+      var content = z.JSON.parse(response.content);
+      var data = content.data;
+      var sample = data[0];
+      var raw = Object.keys(sample);
+      for (let key of raw) {
+        if (typeof sample[key] === 'object' && sample[key] !== null) {
+          var fields = getFields(key, sample[key]);
+          var fields_array = Object.keys(fields);
+          for (let new_key of fields_array) {
+            new_fields.push(fields[new_key]);
+          }
+        }
+        else {
+          new_fields.push({key: key, type: 'text'});
+        }
+      }
+      return new_fields;
+    });
+  }
+  return [];
+};
+
+const dynamicBasic = (z, bundle) => {
+  return z.request({url: '{{bundle.authData.url}}'}).then(function(response) { 
     const content = z.JSON.parse(response.content);
     const links = content.links;
     var raw = Object.keys(links);
     var split = [];
     var entities = {};
     var bundles = {};
-    var perBundleFields = {};
     var fields = [];
-    fields.push({key: 'entity_type', choices: entities, helpText: 'Which Drupal entity type should we create.', required: true, altersDynamicFields: true});
-    fields.push({key: 'bundle', choices: bundles,  helpText: 'Which bundle should we create. We will use the newest entity of this type to populate the available fields.', required: true, altersDynamicFields: true});
-
+    
     for (let key of raw) {
       split = key.split('--');
       entities[split[0]] = split[0];
@@ -25,19 +67,9 @@ const dynamicFields = (z, bundle) => {
         bundles[split[1]] = split[1];
       }
     }
-
-    if (bundle.inputData.entity_type && bundle.inputData.bundle) {
-      perBundleFields = z.request({url: '{{bundle.authData.url}}/{{bundle.inputData.entity_type}}/{{bundle.inputData.bundle}}'})
-        .then(function(response) {
-           var content = z.JSON.parse(response.content).data;
-           var sample = data[0];
-           for (let key of sample) {
-             fields.push({key: key, type: 'text'});
-           }
-        });
-    }
+    fields.push({key: 'entity_type', choices: entities, helpText: 'Which Drupal entity type should we create.', required: true, altersDynamicFields: true});
+    fields.push({key: 'bundle', choices: bundles,  helpText: 'Which bundle should we create. We will use the newest entity of this type to populate the available fields.', required: true, altersDynamicFields: true});
     return fields;
-
   });
 };
 
@@ -53,6 +85,7 @@ module.exports = {
   // `operation` is where the business logic goes.
   operation: {
     inputFields: [
+      dynamicBasic,
       dynamicFields
     ],
     perform: (z, bundle) => {
