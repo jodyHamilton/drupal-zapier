@@ -5,7 +5,9 @@ To use this app, please ask me for a 'Zapier invite': I'll need your email. You 
 You can optionally clone this repo and push your own forked version of the app in order to use it, but I need users with live zaps in order to get the app published.
 
 You will need a Drupal 8 site *without* any htaccess restrictions.
+
 Enable basic_auth (core) module.
+
 Add and enable JSON:API contrib module.
 
 ## Getting data from Drupal
@@ -31,7 +33,11 @@ You'll need to install the zapier-cli.
 To run tests, you'll need to add a .env file with credentials to a site:
 
 TEST_USERNAME=bot
+
 TEST_PASSWORD=foo
+
 TEST_URL=https://foo.com/jsonapi
+
 TEST_ENTITY=node
+
 TEST_BUNDLE=article
