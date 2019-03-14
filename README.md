@@ -4,11 +4,16 @@ To use this app, please ask me for a 'Zapier invite': I'll need your email. You 
 
 You can optionally clone this repo and push your own forked version of the app in order to use it, but I need users with live zaps in order to get the app published.
 
-You will need a Drupal 8 site *without* any htaccess restrictions.
+You will need a Drupal 8 site with the following:
 
-Enable basic_auth (core) module.
+Basic_auth (core) module enabled (no configuration).
 
-Add and enable JSON:API contrib module.
+[JSON:API](https://www.drupal.org/project/jsonapi) (contrib) module enabled (no configuration). I'm on 8.x-2.3.
+
+No other basic authentication restrictions on your site. This conflicts with basic_auth module. (It's possible to use oauth or other authentication means, but I have not done so)
+
+Your Drupal site must be accessible from a public facing URL. (A local machine or servers behind a firewall are not public facing.)
+
 
 ## Getting data from Drupal
 
