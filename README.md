@@ -1,3 +1,5 @@
+This is a Zapier app for connecting to Drupal.
+
 ## Getting started using this app
 
 To use this app, please ask me for a 'Zapier invite': I'll need your email. You can hit me up at my [Drupal contact form](https://www.drupal.org/u/jody-lynn) You'll get an email from [Zapier](https://zapier.com/app/home) and then you will be able to use a 'Drupal' trigger or action when creating a 'zap' in zapier.
