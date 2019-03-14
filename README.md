@@ -1,6 +1,6 @@
 ## Getting started using this app
 
-To use this app, please ask me for a 'Zapier invite': I'll need your email. You can hit me up at my [https://www.drupal.org/u/jody-lynn](Drupal contact form) You'll get an email from [Zapier]( https://zapier.com/app/home) and then you will be able to use a 'Drupal' trigger or action when creating a 'zap' in zapier.
+To use this app, please ask me for a 'Zapier invite': I'll need your email. You can hit me up at my [Drupal contact form](https://www.drupal.org/u/jody-lynn) You'll get an email from [Zapier](https://zapier.com/app/home) and then you will be able to use a 'Drupal' trigger or action when creating a 'zap' in zapier.
 
 You can optionally clone this repo and push your own forked version of the app in order to use it, but I need users with live zaps in order to get the app published.
 
